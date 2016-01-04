@@ -20,8 +20,8 @@ public class Execute {
 		conn_inst = DriverManager.getConnection(ProjectSettings.DB_URL, args[1], args[2]);
 		/*HtmlCrawler hc = new HtmlCrawler();
 		hc.crawlMovie(args[0]);*/
-		MovielensParser mlparser = new MovielensParser(conn_inst);
-		mlparser.parseGenreInfo(ProjectSettings.MOVIELENS_100K_PATH.concat(ProjectSettings.MOVIELENS_GENRE_INPUT_FILE), ProjectSettings.MOVIELENS_COLUMN_SEPARATOR);
+		/*MovielensParser mlparser = new MovielensParser(conn_inst);
+		mlparser.parseRatingInfo(ProjectSettings.MOVIELENS_100K_PATH.concat(ProjectSettings.MOVIELENS_RATING_INPUT_FILE), "\t");*/
 		} catch(Exception mainEx) {
 			System.out.println("Error on main: ".concat(mainEx.toString()));
 		} finally {			

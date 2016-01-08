@@ -17,4 +17,5 @@ public class ProjectSettings {
 	public final static String MOVIE_TABLE_NAME = "movies";
 	public final static String RATING_TABLE_NAME = "ratings";
 	public final static String USER_TABLE_NAME = "users";
+	public final static String USER_AGENT = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36";
 }

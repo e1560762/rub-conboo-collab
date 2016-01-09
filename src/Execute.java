@@ -3,6 +3,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import parse.CustomAnalyzer;
 import parse.HtmlCrawler;
 import parse.MovielensParser;
 import config.ProjectSettings;
@@ -25,9 +26,14 @@ public class Execute {
 		stmt = conn_inst.createStatement();
 		rset = stmt.executeQuery("Select imdb_url from ".concat(ProjectSettings.MOVIE_TABLE_NAME).concat(" limit 1,1"));
 		if(rset.next()) {
-			HtmlCrawler hc = new HtmlCrawler();
-			hc.crawlMovie(rset.getString(1));
+			HtmlCrawler hc = new HtmlCrawler(rset.getString(1));
+			hc.crawlMovieComments("reviews?start=", 0);
 		}
+		/*
+		 CustomAnalyzer test_analyzer = new CustomAnalyzer();
+		 test_analyzer.tokenizeString(sb.toString());
+		 test_analyzer.close();
+		*/
 		/*MovielensParser mlparser = new MovielensParser(conn_inst);
 		mlparser.parseRatingInfo(ProjectSettings.MOVIELENS_100K_PATH.concat(ProjectSettings.MOVIELENS_RATING_INPUT_FILE), "\t");*/
 		} catch(Exception mainEx) {

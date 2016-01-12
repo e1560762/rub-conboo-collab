@@ -33,5 +33,13 @@ public class ProjectSettings {
 	public final static String MOVIE_TABLE_NAME = "movies";
 	public final static String RATING_TABLE_NAME = "ratings";
 	public final static String USER_TABLE_NAME = "users";
+	public final static int MOVIELENS_100K_NUM_OF_MOVIES = 1682;
+	public final static int MOVIELENS_100K_NUM_OF_GENRES = 19;
+	public final static int MOVIELENS_100K_NUM_OF_USERS = 943;
 	public final static String USER_AGENT = "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36";
+	public final static String GENRE_NAMES[] = {"unknown", "Action", "Adventure", "Animation",
+	                                             "Childrens", "Comedy", "Crime", "Documentary", "Drama", "Fantasy",
+	                                             "Film-Noir", "Horror", "Musical", "Mystery", "Romance", "Sci-Fi",
+	                                             "Thriller", "War", "Western"
+	                                           };
 }

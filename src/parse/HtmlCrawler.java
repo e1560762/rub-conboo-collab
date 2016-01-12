@@ -26,6 +26,7 @@ import elements.Movie;
 
 public class HtmlCrawler {
 	private int movie_id;
+	private String movie_title;
 	//private List<Movie> movies;
 	private Document doc;
 	private String base_url;
@@ -36,7 +37,7 @@ public class HtmlCrawler {
 	private String current_string;
 	//private Cleaner doc_cleaner;
 	
-	public HtmlCrawler(String url, DB mng_db, int movie_id) {
+	public HtmlCrawler(String url, DB mng_db, int movie_id, String title) {
 		//this.movies = new ArrayList<Movie>();
 		try {
 			this.base_url = Jsoup.connect(url)
@@ -50,6 +51,7 @@ public class HtmlCrawler {
 		this.test_analyzer = new CustomAnalyzer();
 		this.mongo_db = mng_db;
 		this.movie_id = movie_id;
+		this.movie_title = title.replaceAll(" ", "_");
 		//this.doc_cleaner = new Cleaner(Whitelist.basic());
 	}
 	
@@ -102,20 +104,13 @@ public class HtmlCrawler {
 				this.current_string = elem.getElementsByAttributeValue("itemprop", "name").html().toLowerCase().replaceAll("\\.\\s|\\s", "_"); 
 				this.sb.append(this.current_string).append(" ");
 				this.current_string = ProjectSettings.MONGO_MOVIES_TABLE_PLAYER_KEY.concat(".").concat(this.current_string);
-				if(updated_values.containsKey(this.current_string))
-					updated_values.put(this.current_string, updated_values.getInt(this.current_string) + 1);
-				else
-					updated_values.put(this.current_string, 1);
+				updated_values.put(this.current_string, 1);
 			}
 			for(Element elem : this.doc.select(".cast_list .even")) {
 				this.current_string = elem.getElementsByAttributeValue("itemprop", "name").html().toLowerCase().replaceAll("\\.\\s|\\s", "_");
 				this.sb.append(this.current_string).append(" ");
 				this.current_string = ProjectSettings.MONGO_MOVIES_TABLE_PLAYER_KEY.concat(".").concat(this.current_string);
-				
-				if(updated_values.containsKey(this.current_string))
-					updated_values.put(this.current_string, updated_values.getInt(this.current_string) + 1);
-				else
-					updated_values.put(this.current_string, 1);
+				updated_values.put(this.current_string, 1);
 			}
 			
 			/* convert sb to string and save to mongodb as player slot*/
@@ -137,23 +132,49 @@ public class HtmlCrawler {
 			 		.userAgent(ProjectSettings.USER_AGENT)
 			 		.followRedirects(true)
 			 		.get();
+			this.sb.append(this.movie_title).append(" ");
+			BasicDBObject updated_values = new BasicDBObject();
+			updated_values.put(ProjectSettings.MONGO_MOVIES_TABLE_TITLE_KEY.concat(".").concat(this.movie_title), 1);
+			updated_values.put(ProjectSettings.MONGO_MOVIES_TABLE_RELATED_TITLE_KEY.concat(".").concat(this.movie_title), 1);
 			
 			for(Element elem : this.doc.select("[itemprop=director] [itemprop=name]")) {
-				this.sb.append(elem.html().toLowerCase().replaceAll(" ", "_"))
-					.append(" ");
+				this.current_string = elem.html().toLowerCase().replaceAll("\\.\\s|\\s", "_");
+				this.sb.append(this.current_string).append(" ");
+				updated_values.put(ProjectSettings.MONGO_MOVIES_TABLE_DIRECTOR_KEY.concat(".").concat(this.current_string), 1);
+				updated_values.put(ProjectSettings.MONGO_MOVIES_TABLE_RELATED_DIRECTOR_KEY.concat(".").concat(this.current_string), 1);
 			}
 			/* convert sb to string and save to mongodb as director slot*/
+			System.out.println(this.sb.toString());
 			this.sb.setLength(0);
 			
-			for(Element elem : this.doc.select("#title_recs .rec_overview .rec-title")) {
-				this.sb.append(elem.getElementsByTag("a").first().text()
-						.toLowerCase()
-						.replaceAll(" ", "_")
-						.concat("_")
-						.concat(elem.getElementsByClass("nobr").first().html()))
-						.append(" ");
+			for(Element elem : this.doc.select("#title_recs .rec_overview")) {
+				this.current_string = elem.select(".rec-title a").first().text()
+										.toLowerCase()
+										.replaceAll("\\.\\s|\\s", "_")
+										.concat("_")
+										.concat(elem.getElementsByClass("nobr").first().html());
+				this.sb.append(this.current_string).append(" ");
+				this.current_string = ProjectSettings.MONGO_MOVIES_TABLE_RELATED_TITLE_KEY.concat(".").concat(this.current_string);
+				updated_values.put(this.current_string, 1);
+				
+				this.current_string = elem.select(".rec-jaw-lower .rec-director").first().text()
+										.substring(10)
+										.toLowerCase()
+										.replaceAll("\\.\\s|\\s", "_");
+				this.sb.append(this.current_string).append(" ");
+				
+				this.current_string = ProjectSettings.MONGO_MOVIES_TABLE_RELATED_DIRECTOR_KEY.concat(".").concat(this.current_string);
+				if(updated_values.containsKey(this.current_string))
+					updated_values.put(this.current_string, updated_values.getInt(this.current_string) + 1);
+				else
+					updated_values.put(this.current_string, 1);
 			}
 			/* convert sb to string and save to mongodb as related_movies slot*/
+			this.updateWordCountInMongo(this.mongo_db.getCollection(ProjectSettings.MONGO_MOVIE_COLLECTION_NAME),
+					new BasicDBObject().append(ProjectSettings.MONGO_MOVIES_TABLE_MOVIE_ID_KEY, this.movie_id),
+					new BasicDBObject().append("$inc", updated_values) 
+							);
+			System.out.println(this.sb.toString());
 			this.sb.setLength(0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -170,7 +191,7 @@ public class HtmlCrawler {
 			 		.followRedirects(true)
 			 		.get();
 			
-			this.test_analyzer.tokenizeString(this.doc.getElementById("swiki.2.1").text().replaceAll("[.,()]", "")
+			this.test_analyzer.tokenizeString(this.doc.getElementById("swiki.2.1").text().replaceAll("[.,()!{}*\\[\\];:'\"]", "")
 					, this.mongo_db.getCollection(ProjectSettings.MONGO_MOVIE_COLLECTION_NAME), this.movie_id, ProjectSettings.MONGO_MOVIES_TABLE_CONTENT_KEY);			
 		} catch (Exception e) {
 		// TODO Auto-generated catch block
@@ -187,7 +208,7 @@ public class HtmlCrawler {
 			 		.followRedirects(true)
 			 		.get();
 			for(Element elem : this.doc.select(".zebraList .plotSummary")) {
-				this.sb.append(elem.text().replaceAll("[.,()]", "")).append(" ");
+				this.sb.append(elem.text().replaceAll("[.,()!{}*\\[\\];:'\"]", "")).append(" ");
 			}
 			this.test_analyzer.tokenizeString(this.sb.toString()
 					, this.mongo_db.getCollection(ProjectSettings.MONGO_MOVIE_COLLECTION_NAME), this.movie_id, ProjectSettings.MONGO_MOVIES_TABLE_CONTENT_KEY);						
@@ -208,7 +229,7 @@ public class HtmlCrawler {
 			 		.followRedirects(true)
 			 		.get();
 			for(Element elem : this.doc.select("#tn15content p")) {
-				this.sb.append(elem.text().replaceAll("[.,()]", "")).append("\n");
+				this.sb.append(elem.text().replaceAll("[.,()!{}*\\[\\];:'\"]", "")).append("\n");
 			}
 			length_of_string = this.sb.length();
 			/* remove add another review line*/
@@ -227,6 +248,20 @@ public class HtmlCrawler {
 		}
 	}
 	
+	public void setUrlIdTitle(String newUrl, int newId, String newTitle) {
+		try {
+			this.base_url = Jsoup.connect(newUrl)
+			 		.userAgent(ProjectSettings.USER_AGENT)
+			 		.followRedirects(true)
+			 		.execute().url().toString();
+		} catch(Exception connectExc) {
+			this.base_url = newUrl;
+		}
+		this.movie_id = newId;
+		this.movie_title = newTitle;
+	}
+	
+	/* Private methods */
 	private boolean updateWordCountInMongo(DBCollection mongo_collection, BasicDBObject searched_obj, BasicDBObject updated_obj) {
 		try {
 			mongo_collection.update(searched_obj, updated_obj, true, false);

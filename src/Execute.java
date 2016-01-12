@@ -28,14 +28,14 @@ public class Execute {
 		try {
 		Class.forName(ProjectSettings.JDBC_DRIVER);
 		conn_inst = DriverManager.getConnection(ProjectSettings.DB_URL, args[0], args[1]);
-		stmt = conn_inst.createStatement();
-		rset = stmt.executeQuery("Select imdb_url, id from ".concat(ProjectSettings.MOVIE_TABLE_NAME).concat(" limit 1,1"));
+		/*stmt = conn_inst.createStatement();
+		rset = stmt.executeQuery("Select imdb_url, id, title from ".concat(ProjectSettings.MOVIE_TABLE_NAME).concat(" limit 1,1"));
 		mongo_client = new MongoClient(ProjectSettings.MONGO_IP, ProjectSettings.MONGO_PORT);
 		project_db = mongo_client.getDB(ProjectSettings.MONGO_DB_NAME);
 		if(rset.next()) {
-			HtmlCrawler hc = new HtmlCrawler(rset.getString(1), project_db, rset.getInt(2));
-			hc.crawlMovieData(0);
-		}
+			HtmlCrawler hc = new HtmlCrawler(rset.getString(1), project_db, rset.getInt(2), rset.getString(3).toLowerCase());
+			hc.crawlMovieData(6);
+		}*/
 		/*
 		 CustomAnalyzer test_analyzer = new CustomAnalyzer();
 		 test_analyzer.tokenizeString(sb.toString());

@@ -52,7 +52,7 @@ public class CustomAnalyzer extends Analyzer {
 				else
 					updated_values.put(this.current_token, updated_values.getInt(this.current_token)+1);
 				
-				System.out.print(ts.getAttribute(CharTermAttribute.class).toString().concat(" "));
+				//System.out.print(ts.getAttribute(CharTermAttribute.class).toString().concat(" "));
 			}
 			mongo_collection.update(new BasicDBObject().append(ProjectSettings.MONGO_MOVIES_TABLE_MOVIE_ID_KEY, movie_id), new BasicDBObject().append("$inc", updated_values), true, false);
 		} catch(Exception tsIterationEx) {

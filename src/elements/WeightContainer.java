@@ -1,15 +1,36 @@
 package elements;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class WeightContainer {
 	public int user_id;
 	public double[] values;
-	public HashMap<Integer, Integer> adjacency_matrix;
+	public HashMap<Integer, Double> rated_movies;
+	public StringBuilder str = new StringBuilder();
 	
+	public WeightContainer() {this.user_id = 0;}
 	public WeightContainer(int uid, int size_of_array) {
 		this.user_id = uid;
 		this.values = new double[size_of_array];
-		this.adjacency_matrix = new HashMap<Integer, Integer>();
 	}
+	
+	public void printContents() {
+		this.str.append(this.user_id).append("\nFavourite Genres:\n");
+		for(int i=0; i<this.values.length; i++)
+			this.str.append(Double.toString(this.values[i])).append(" ");
+		if(this.rated_movies != null) {
+			this.str.append("\nMovie Ratings:\n");
+			for(Map.Entry<Integer, Double> entry : this.rated_movies.entrySet()) {
+				this.str.append(entry.getKey()).append(": ").append(entry.getValue()).append(" ");
+			}
+			this.str.append("\n");
+		}
+		System.out.println(this.str.toString());
+		this.str.setLength(0);
+	}
+	/*public void copyFrom(WeightContainer wc) {
+		this.user_id = wc.user_id;
+		this.values = 
+	}*/
 }

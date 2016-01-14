@@ -3,6 +3,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import cluster.AlphaCommunity;
+
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 
@@ -25,6 +27,10 @@ public class Execute {
 		ResultSet rset = null;
 		MongoClient mongo_client = null;
 		DB project_db = null;
+		int sz = 800;
+		int[] user_arr = new int[sz];
+		for(int i= 0; i<sz; i++)
+			user_arr[i] = i+1;
 		try {
 		Class.forName(ProjectSettings.JDBC_DRIVER);
 		conn_inst = DriverManager.getConnection(ProjectSettings.DB_URL, args[0], args[1]);
@@ -43,8 +49,13 @@ public class Execute {
 		*/
 		/*MovielensParser mlparser = new MovielensParser(conn_inst);
 		mlparser.parseRatingInfo(ProjectSettings.MOVIELENS_100K_PATH.concat(ProjectSettings.MOVIELENS_RATING_INPUT_FILE), "\t");*/
+		/* Cluster test */
+		AlphaCommunity ac = new AlphaCommunity (0.1, 0.15, 1.4, 50, 100, 10, 3, 0.05, conn_inst);
+		ac.clusterRatings(user_arr);
+		
 		} catch(Exception mainEx) {
 			System.out.println("Error on main: ".concat(mainEx.toString()));
+			mainEx.printStackTrace();
 		} finally {			
 			try { if(rset != null) rset.close(); } catch (Exception sqlEx) {
 				System.out.println("Error on mysql resultset close: ".concat(sqlEx.toString()));

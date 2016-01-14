@@ -3,9 +3,12 @@ package elements;
 import java.util.HashMap;
 import java.util.Map;
 
-public class WeightContainer {
+import org.apache.commons.math3.ml.clustering.Clusterable;
+
+public class WeightContainer implements Clusterable{
 	public int user_id;
 	public double[] values;
+	public double[] points;
 	public HashMap<Integer, Double> rated_movies;
 	public StringBuilder str = new StringBuilder();
 	
@@ -33,4 +36,9 @@ public class WeightContainer {
 		this.user_id = wc.user_id;
 		this.values = 
 	}*/
+	@Override
+	public double[] getPoint() {
+		// TODO Auto-generated method stub
+		return this.points;
+	}
 }

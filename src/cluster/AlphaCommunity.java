@@ -7,9 +7,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.math3.ml.clustering.CentroidCluster;
+import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
@@ -144,11 +148,6 @@ public class AlphaCommunity {
 			System.out.println("Error in clusterByAntBasedAlgorithm:");
 			excp.printStackTrace();
 		}
-		this.printCommunityLocations();
-		this.community_locations.clear();
-		
-		this.printAgentLoads();
-		this.agent_load.clear();
 	}
 	
 	public void clusterGenres(int[] user_list) {
@@ -243,6 +242,25 @@ public class AlphaCommunity {
 				}
 			}
 			this.clusterByAntBasedAlgorithm(false);
+			String[] str_iter = this.community_locations. keySet().toArray(new String[this.community_locations.keySet().size()]);
+			ArrayList<WeightContainer> kmeans_clustered = new ArrayList<WeightContainer>();
+			for(String cur_key : str_iter) {
+				WeightContainer tmpwc = this.community_locations.remove(cur_key);
+				tmpwc.points = new double[2];
+				tmpwc.points[0] = Double.parseDouble(cur_key.split("_")[0]);
+				tmpwc.points[1] = Double.parseDouble(cur_key.split("_")[1]);
+				kmeans_clustered.add(tmpwc);				
+			}
+			this.agent_load.clear();
+			KMeansPlusPlusClusterer<WeightContainer> clusterer = 
+					new KMeansPlusPlusClusterer<WeightContainer>(19, 1000);
+			List<CentroidCluster<WeightContainer>> clusterResults = clusterer.cluster(kmeans_clustered);
+			for (int i=0; i<clusterResults.size(); i++) {
+			    System.out.println("Cluster " + i);
+			    for(WeightContainer wc2 : clusterResults.get(i).getPoints())
+			    	System.out.print(wc2.user_id + ",");
+			    System.out.println();
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -290,6 +308,25 @@ public class AlphaCommunity {
 				}
 			}
 			this.clusterByAntBasedAlgorithm(true);
+			String[] str_iter = this.community_locations.keySet().toArray(new String[this.community_locations.keySet().size()]);
+			ArrayList<WeightContainer> kmeans_clustered = new ArrayList<WeightContainer>();
+			for(String cur_key : str_iter) {
+				WeightContainer tmpwc = this.community_locations.remove(cur_key);
+				tmpwc.points = new double[2];
+				tmpwc.points[0] = Double.parseDouble(cur_key.split("_")[0]);
+				tmpwc.points[1] = Double.parseDouble(cur_key.split("_")[1]);
+				kmeans_clustered.add(tmpwc);				
+			}
+			this.agent_load.clear();
+			KMeansPlusPlusClusterer<WeightContainer> clusterer = 
+					new KMeansPlusPlusClusterer<WeightContainer>(5, 1000);
+			List<CentroidCluster<WeightContainer>> clusterResults = clusterer.cluster(kmeans_clustered);
+			for (int i=0; i<clusterResults.size(); i++) {
+			    System.out.println("Cluster " + i);
+			    for(WeightContainer wc2 : clusterResults.get(i).getPoints())
+			    	System.out.print(wc2.user_id + ",");
+			    System.out.println();
+			}
 		} catch(Exception e) {
 			System.out.println("Error on cluster Ratings: ".concat(e.toString()));
 			e.printStackTrace();

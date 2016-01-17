@@ -47,6 +47,21 @@ public class HtmlCrawler {
 		} catch(Exception connectExc) {
 			this.base_url = url;
 		}
+		try {
+			Document d = Jsoup.connect(this.base_url)
+					.userAgent(ProjectSettings.USER_AGENT)
+					.followRedirects(true)
+					.get();
+			if(d.select("[itemprop=director] [itemprop=name]").isEmpty()) {
+					System.out.println("NOT FOUND " + movie_id);
+					String s = d.select(".result_text a[href]").attr("href");
+					s = s.substring(0, s.indexOf('?')-1);
+					this.base_url = "http://us.imdb.com" + s;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.sb = new StringBuilder(100);
 		this.test_analyzer = new CustomAnalyzer();
 		this.mongo_db = mng_db;
@@ -118,7 +133,6 @@ public class HtmlCrawler {
 					new BasicDBObject().append(ProjectSettings.MONGO_MOVIES_TABLE_MOVIE_ID_KEY, this.movie_id),
 					new BasicDBObject().append("$inc", updated_values) 
 							);
-			System.out.println(this.sb.toString());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -144,23 +158,27 @@ public class HtmlCrawler {
 				updated_values.put(ProjectSettings.MONGO_MOVIES_TABLE_RELATED_DIRECTOR_KEY.concat(".").concat(this.current_string), 1);
 			}
 			/* convert sb to string and save to mongodb as director slot*/
-			System.out.println(this.sb.toString());
 			this.sb.setLength(0);
 			
 			for(Element elem : this.doc.select("#title_recs .rec_overview")) {
+				try {
 				this.current_string = elem.select(".rec-title a").first().text()
 										.toLowerCase()
 										.replaceAll("\\.\\s|\\s", "_")
 										.concat("_")
 										.concat(elem.getElementsByClass("nobr").first().html());
 				this.sb.append(this.current_string).append(" ");
+				} catch(Exception xx){}
+				try{
 				this.current_string = ProjectSettings.MONGO_MOVIES_TABLE_RELATED_TITLE_KEY.concat(".").concat(this.current_string);
 				updated_values.put(this.current_string, 1);
-				
+				} catch(Exception xx){}
+				try {
 				this.current_string = elem.select(".rec-jaw-lower .rec-director").first().text()
 										.substring(10)
 										.toLowerCase()
 										.replaceAll("\\.\\s|\\s", "_");
+				} catch(Exception xx){}
 				this.sb.append(this.current_string).append(" ");
 				
 				this.current_string = ProjectSettings.MONGO_MOVIES_TABLE_RELATED_DIRECTOR_KEY.concat(".").concat(this.current_string);
@@ -174,7 +192,6 @@ public class HtmlCrawler {
 					new BasicDBObject().append(ProjectSettings.MONGO_MOVIES_TABLE_MOVIE_ID_KEY, this.movie_id),
 					new BasicDBObject().append("$inc", updated_values) 
 							);
-			System.out.println(this.sb.toString());
 			this.sb.setLength(0);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

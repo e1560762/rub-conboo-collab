@@ -12,6 +12,7 @@ import parse.CustomAnalyzer;
 import parse.HtmlCrawler;
 import parse.MovielensParser;
 import config.ProjectSettings;
+import elements.Recommender;
 
 public class Execute {
 
@@ -27,21 +28,21 @@ public class Execute {
 		ResultSet rset = null;
 		MongoClient mongo_client = null;
 		DB project_db = null;
-		int sz = 800;
+		int sz = 866;
 		int[] user_arr = new int[sz];
 		for(int i= 0; i<sz; i++)
 			user_arr[i] = i+1;
 		try {
 		Class.forName(ProjectSettings.JDBC_DRIVER);
 		conn_inst = DriverManager.getConnection(ProjectSettings.DB_URL, args[0], args[1]);
-		/*stmt = conn_inst.createStatement();
-		rset = stmt.executeQuery("Select imdb_url, id, title from ".concat(ProjectSettings.MOVIE_TABLE_NAME).concat(" limit 1,1"));
+		stmt = conn_inst.createStatement();
+		rset = stmt.executeQuery("Select imdb_url, id, title from ".concat(ProjectSettings.MOVIE_TABLE_NAME).concat(" limit 23,2000"));
 		mongo_client = new MongoClient(ProjectSettings.MONGO_IP, ProjectSettings.MONGO_PORT);
 		project_db = mongo_client.getDB(ProjectSettings.MONGO_DB_NAME);
-		if(rset.next()) {
+		while(rset.next()) {
 			HtmlCrawler hc = new HtmlCrawler(rset.getString(1), project_db, rset.getInt(2), rset.getString(3).toLowerCase());
-			hc.crawlMovieData(6);
-		}*/
+			hc.crawlMovieData(7);
+		}
 		/*
 		 CustomAnalyzer test_analyzer = new CustomAnalyzer();
 		 test_analyzer.tokenizeString(sb.toString());
@@ -50,9 +51,10 @@ public class Execute {
 		/*MovielensParser mlparser = new MovielensParser(conn_inst);
 		mlparser.parseRatingInfo(ProjectSettings.MOVIELENS_100K_PATH.concat(ProjectSettings.MOVIELENS_RATING_INPUT_FILE), "\t");*/
 		/* Cluster test */
-		AlphaCommunity ac = new AlphaCommunity (0.1, 0.15, 1.4, 50, 100, 10, 3, 0.05, conn_inst);
-		ac.clusterRatings(user_arr);
-		
+		/*AlphaCommunity ac = new AlphaCommunity (0.1, 0.15, 1.4, 1500000, 100, 10, 3, 0.05, conn_inst);
+		ac.clusterRatings(user_arr);*/
+		/*Recommender r = new Recommender(conn_inst);
+		r.recommendByOccupation(1);*/
 		} catch(Exception mainEx) {
 			System.out.println("Error on main: ".concat(mainEx.toString()));
 			mainEx.printStackTrace();

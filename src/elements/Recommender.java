@@ -203,15 +203,15 @@ public class Recommender {
 		/*String line;
 		StringBuilder sb = new StringBuilder();*/
 		try {
-		Runtime r = Runtime.getRuntime();
-	    Process p2 = r.exec("/home/yigit/Doktora/KnowledgeEngineering/20151/project/c5_0/c5.0 -f /home/yigit/Doktora/KnowledgeEngineering/20151/project/test/see5/genre");
-		/*BufferedReader br = new BufferedReader(new InputStreamReader(p2.getInputStream()));
-		while((line = br.readLine()) != null )
-			sb.append(line);*/
-		p2.waitFor();
-		/*System.out.println(sb.toString());
-		br.close();*/
-	    p2.destroy();
+			Runtime r = Runtime.getRuntime();
+		    Process p2 = r.exec("/home/yigit/Doktora/KnowledgeEngineering/20151/project/c5_0/c5.0 -f /home/yigit/Doktora/KnowledgeEngineering/20151/project/test/see5/genre");
+			/*BufferedReader br = new BufferedReader(new InputStreamReader(p2.getInputStream()));
+			while((line = br.readLine()) != null )
+				sb.append(line);*/
+			p2.waitFor();
+			/*System.out.println(sb.toString());
+			br.close();*/
+		    p2.destroy();
 		} catch(Exception ex) {
 			System.out.println("Error on recommendation by genre");
 			ex.printStackTrace();
@@ -219,7 +219,15 @@ public class Recommender {
 	}
 	
 	public void recommendByRating(int user_id) {
-		
+        try {
+	        Runtime r = Runtime.getRuntime();
+	        Process p2 = r.exec("/home/yigit/Doktora/KnowledgeEngineering/20151/project/c5_0/c5.0 -f /home/yigit/Doktora/KnowledgeEngineering/20151/project/test/see5/rating");
+	        p2.waitFor();
+	        p2.destroy();
+        } catch(Exception ex) {
+                System.out.println("Error on recommendation by rating");
+                ex.printStackTrace();
+        }
 	}
 	
 	private void eliminateByLevelOfAgreement(HashMap<Integer, LevelOfAgreement> loa_list) {

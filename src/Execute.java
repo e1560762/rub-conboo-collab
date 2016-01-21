@@ -35,14 +35,14 @@ public class Execute {
 		try {
 		Class.forName(ProjectSettings.JDBC_DRIVER);
 		conn_inst = DriverManager.getConnection(ProjectSettings.DB_URL, args[0], args[1]);
-		stmt = conn_inst.createStatement();
+		/*stmt = conn_inst.createStatement();
 		rset = stmt.executeQuery("Select imdb_url, id, title from ".concat(ProjectSettings.MOVIE_TABLE_NAME).concat(" limit 23,2000"));
 		mongo_client = new MongoClient(ProjectSettings.MONGO_IP, ProjectSettings.MONGO_PORT);
 		project_db = mongo_client.getDB(ProjectSettings.MONGO_DB_NAME);
 		while(rset.next()) {
 			HtmlCrawler hc = new HtmlCrawler(rset.getString(1), project_db, rset.getInt(2), rset.getString(3).toLowerCase());
 			hc.crawlMovieData(7);
-		}
+		}*/
 		/*
 		 CustomAnalyzer test_analyzer = new CustomAnalyzer();
 		 test_analyzer.tokenizeString(sb.toString());
@@ -53,8 +53,8 @@ public class Execute {
 		/* Cluster test */
 		/*AlphaCommunity ac = new AlphaCommunity (0.1, 0.15, 1.4, 1500000, 100, 10, 3, 0.05, conn_inst);
 		ac.clusterRatings(user_arr);*/
-		/*Recommender r = new Recommender(conn_inst);
-		r.recommendByOccupation(1);*/
+		Recommender r = new Recommender(conn_inst);
+		r.recommendByRating(867);
 		} catch(Exception mainEx) {
 			System.out.println("Error on main: ".concat(mainEx.toString()));
 			mainEx.printStackTrace();
